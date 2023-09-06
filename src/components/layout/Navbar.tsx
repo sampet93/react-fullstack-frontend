@@ -1,5 +1,4 @@
 import { AppBar, Box, Typography, Toolbar, Button } from "@mui/material";
-import React from "react";
 
 export default function Navbar() {
   return (
@@ -9,7 +8,7 @@ export default function Navbar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             App
           </Typography>
-          <Button color="inherit">Users</Button>
+          <Button color="inherit">Manage users</Button>
         </Toolbar>
       </AppBar>
     </Box>
