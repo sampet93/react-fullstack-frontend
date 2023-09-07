@@ -5,17 +5,16 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import WarningIcon from "@mui/icons-material/Warning";
-import { User } from "../../hooks/useUsers";
 
 interface OwnProps {
-  user?: User;
+  userId?: number;
   isOpen: boolean;
-  handleSubmit: () => void;
+  handleSubmit: (userId: number) => Promise<void>;
   handleCancel: () => void;
 }
 
 export default function DeleteUserDialog(props: OwnProps) {
-  const { isOpen, handleSubmit, handleCancel, user } = props;
+  const { isOpen, handleSubmit, handleCancel, userId } = props;
 
   return (
     <div>
@@ -43,7 +42,7 @@ export default function DeleteUserDialog(props: OwnProps) {
           <Button onClick={handleCancel} autoFocus>
             Cancel
           </Button>
-          <Button variant="outlined" color="error" onClick={handleSubmit}>
+          <Button variant="outlined" color="error" onClick={() => handleSubmit(userId!)}>
             Delete
           </Button>
         </DialogActions>

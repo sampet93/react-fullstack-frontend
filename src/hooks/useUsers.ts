@@ -8,6 +8,8 @@ export interface User {
   email: string;
 }
 
+export type NewUser = Omit<User, "id">;
+
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -18,7 +20,40 @@ export function useUsers() {
       setUsers(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Internal error", error);
+      setLoading(false);
+    }
+  };
+
+  const addUser = async (user: NewUser) => {
+    try {
+      const response = await axios.post("http://localhost:8080/user", user);
+      console.log(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Internal error", error);
+      setLoading(false);
+    }
+  };
+
+  const editUser = async (user: User) => {
+    try {
+      const response = await axios.put(`http://localhost:8080/user/${user.id}`, user);
+      console.log(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Internal error", error);
+      setLoading(false);
+    }
+  };
+
+  const deleteUser = async (id: number) => {
+    try {
+      const response = await axios.delete(`http://localhost:8080/user/${id}`);
+      console.log(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Internal error", error);
       setLoading(false);
     }
   };
@@ -27,5 +62,5 @@ export function useUsers() {
     fetchUsers();
   }, []);
 
-  return { users, loading };
+  return { users, loading, addUser, editUser, deleteUser, fetchUsers };
 }

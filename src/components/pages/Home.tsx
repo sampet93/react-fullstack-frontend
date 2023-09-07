@@ -10,14 +10,14 @@ import Paper from "@mui/material/Paper/Paper";
 import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useUsers } from "../../hooks/useUsers";
+import { NewUser, useUsers } from "../../hooks/useUsers";
 import { User } from "../../hooks/useUsers";
 import AddEditUserDialog, { DialogType } from "../dialogs/AddEditUserDialog";
 import DeleteUserDialog from "../dialogs/DeleteUserDialog";
 import Fab from "@mui/material/Fab";
 
 export default function Home() {
-  const { users, loading } = useUsers();
+  const { users, loading, addUser, editUser, deleteUser, fetchUsers } = useUsers();
   const [selectedUser, setSelectedUser] = React.useState<User | undefined>();
   const [dialog, setDialog] = React.useState<DialogType>();
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
@@ -32,9 +32,33 @@ export default function Home() {
     setDeleteDialogOpen(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmitAdd = async (newUser: NewUser) => {
+    const response = await addUser(newUser);
+    fetchUsers().then(() => {
+      setDialog(undefined);
+      setSelectedUser(undefined);
+    });
+  };
+
+  const handleSubmitDelete = async (id: number) => {
+    Promise.resolve(deleteUser(id)).then(() => {
+      fetchUsers().then(() => {
+        setDialog(undefined);
+        setSelectedUser(undefined);
+        setDeleteDialogOpen(false);
+      });
+    });
     setDialog(undefined);
     setSelectedUser(undefined);
+  };
+
+  const handleSubmitEdit = async (user: User) => {
+    Promise.resolve(editUser(user)).then(() => {
+      fetchUsers().then(() => {
+        setDialog(undefined);
+        setSelectedUser(undefined);
+      });
+    });
   };
 
   const handleCancel = () => {
@@ -55,15 +79,16 @@ export default function Home() {
       <AddEditUserDialog
         dialogType={dialog}
         isOpen={!!dialog}
-        handleSubmit={handleSubmit}
+        handleSubmitAdd={handleSubmitAdd}
+        handleSubmitEdit={handleSubmitEdit}
         handleCancel={handleCancel}
         user={selectedUser!}
       />
       <DeleteUserDialog
         isOpen={deleteDialogOpen}
-        handleSubmit={handleSubmit}
+        handleSubmit={handleSubmitDelete}
         handleCancel={handleCancel}
-        user={selectedUser}
+        userId={selectedUser?.id}
       />
       <Fab
         variant="extended"

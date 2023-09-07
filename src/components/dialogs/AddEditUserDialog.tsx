@@ -17,24 +17,19 @@ interface OwnProps {
   dialogType?: DialogType;
   user: User;
   isOpen: boolean;
-  handleSubmit: (values: User) => void;
+  handleSubmitAdd: (values: User) => Promise<void>;
+  handleSubmitEdit: (values: User) => Promise<void>;
   handleCancel: () => void;
 }
 
 export default function EditUserDialog(props: OwnProps) {
-  const { isOpen, handleSubmit, handleCancel, user, dialogType } = props;
+  const { isOpen, handleSubmitAdd, handleSubmitEdit, handleCancel, user, dialogType } = props;
   return dialogType ? (
     <div>
       <Dialog open={isOpen} onClose={handleCancel}>
         <Formik
           initialValues={user ?? { email: "", name: "", username: "" }}
-          onSubmit={(values, { setSubmitting }) => {
-            setTimeout(() => {
-              alert(JSON.stringify(values));
-              handleSubmit(values);
-              setSubmitting(false);
-            }, 500);
-          }}
+          onSubmit={dialogType === DialogType.Add ? handleSubmitAdd : handleSubmitEdit}
           validationSchema={editUserValidationSchema}
           validateOnChange={false}
           validateOnBlur={true}
