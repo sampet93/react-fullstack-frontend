@@ -15,56 +15,30 @@ import { User } from "../../hooks/useUsers";
 import AddEditUserDialog, { DialogType } from "../dialogs/AddEditUserDialog";
 import DeleteUserDialog from "../dialogs/DeleteUserDialog";
 import Fab from "@mui/material/Fab";
+import { useUserDialog } from "../../hooks/useUserDialog";
 
 export default function Home() {
   const { users, loading, addUser, editUser, deleteUser, fetchUsers } = useUsers();
-  const [selectedUser, setSelectedUser] = React.useState<User | undefined>();
-  const [dialog, setDialog] = React.useState<DialogType>();
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-
-  const handleOpenDialog = (dialogType: DialogType, user?: User) => {
-    setSelectedUser(user);
-    setDialog(dialogType);
-  };
-
-  const handleOpenDeleteDialog = (user: User) => {
-    setSelectedUser(user);
-    setDeleteDialogOpen(true);
-  };
+  const { selectedUser, dialog, deleteDialogOpen, openDialog, openDeleteDialog, closeDialog } =
+    useUserDialog();
 
   const handleSubmitAdd = async (newUser: NewUser) => {
-    const response = await addUser(newUser);
+    await addUser(newUser);
     fetchUsers().then(() => {
-      setDialog(undefined);
-      setSelectedUser(undefined);
+      closeDialog();
     });
   };
 
   const handleSubmitDelete = async (id: number) => {
-    Promise.resolve(deleteUser(id)).then(() => {
-      fetchUsers().then(() => {
-        setDialog(undefined);
-        setSelectedUser(undefined);
-        setDeleteDialogOpen(false);
-      });
+    await deleteUser(id);
+    fetchUsers().then(() => {
+      closeDialog();
     });
-    setDialog(undefined);
-    setSelectedUser(undefined);
   };
 
   const handleSubmitEdit = async (user: User) => {
-    Promise.resolve(editUser(user)).then(() => {
-      fetchUsers().then(() => {
-        setDialog(undefined);
-        setSelectedUser(undefined);
-      });
-    });
-  };
-
-  const handleCancel = () => {
-    setDialog(undefined);
-    setDeleteDialogOpen(false);
-    setSelectedUser(undefined);
+    await editUser(user);
+    fetchUsers().then(closeDialog);
   };
 
   return (
@@ -72,8 +46,8 @@ export default function Home() {
       {loading ? null : (
         <UsersTable
           users={users}
-          handleOpenDialog={handleOpenDialog}
-          handleOpenDeleteDialog={handleOpenDeleteDialog}
+          handleOpenDialog={openDialog}
+          handleOpenDeleteDialog={openDeleteDialog}
         />
       )}
       <AddEditUserDialog
@@ -81,13 +55,13 @@ export default function Home() {
         isOpen={!!dialog}
         handleSubmitAdd={handleSubmitAdd}
         handleSubmitEdit={handleSubmitEdit}
-        handleCancel={handleCancel}
+        handleCancel={closeDialog}
         user={selectedUser!}
       />
       <DeleteUserDialog
         isOpen={deleteDialogOpen}
         handleSubmit={handleSubmitDelete}
-        handleCancel={handleCancel}
+        handleCancel={closeDialog}
         userId={selectedUser?.id}
       />
       <Fab
@@ -95,7 +69,7 @@ export default function Home() {
         color="primary"
         aria-label="add"
         sx={{ position: "absolute", bottom: "8px", right: "8px" }}
-        onClick={() => handleOpenDialog(DialogType.Add)}
+        onClick={() => openDialog(DialogType.Add)}
       >
         <EditIcon />
         Add User
