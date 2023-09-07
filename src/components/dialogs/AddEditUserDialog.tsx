@@ -2,12 +2,19 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
+import Typography from "@mui/material/Typography";
 import { User } from "../../hooks/useUsers";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field } from "formik";
 import { styled } from "@mui/material";
 import * as yup from "yup";
 
+export enum DialogType {
+  Add = "add",
+  Edit = "edit",
+}
+
 interface OwnProps {
+  dialogType: DialogType;
   user: User;
   isOpen: boolean;
   handleSubmit: (values: User) => void;
@@ -15,7 +22,7 @@ interface OwnProps {
 }
 
 export default function EditUserDialog(props: OwnProps) {
-  const { isOpen, handleSubmit, handleCancel, user } = props;
+  const { isOpen, handleSubmit, handleCancel, user, dialogType } = props;
 
   return (
     <div>
@@ -34,6 +41,9 @@ export default function EditUserDialog(props: OwnProps) {
         >
           {({ isSubmitting, errors, touched }) => (
             <StyledForm>
+              <Typography variant="h6" sx={{ marginBottom: "16px" }}>
+                {dialogHeaderMapping[dialogType]}
+              </Typography>
               <Field
                 as={TextField}
                 autoFocus
@@ -83,6 +93,11 @@ export default function EditUserDialog(props: OwnProps) {
     </div>
   );
 }
+
+const dialogHeaderMapping = {
+  [DialogType.Add]: "Add new user",
+  [DialogType.Edit]: "Edit user",
+};
 
 const editUserValidationSchema = yup.object({
   email: yup.string().email("Enter a valid email").required("Email is required"),
