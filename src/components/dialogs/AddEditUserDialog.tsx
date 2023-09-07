@@ -14,7 +14,7 @@ export enum DialogType {
 }
 
 interface OwnProps {
-  dialogType: DialogType;
+  dialogType?: DialogType;
   user: User;
   isOpen: boolean;
   handleSubmit: (values: User) => void;
@@ -23,12 +23,11 @@ interface OwnProps {
 
 export default function EditUserDialog(props: OwnProps) {
   const { isOpen, handleSubmit, handleCancel, user, dialogType } = props;
-
-  return (
+  return dialogType ? (
     <div>
       <Dialog open={isOpen} onClose={handleCancel}>
         <Formik
-          initialValues={user}
+          initialValues={user ?? { email: "", name: "", username: "" }}
           onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
               alert(JSON.stringify(values));
@@ -37,7 +36,8 @@ export default function EditUserDialog(props: OwnProps) {
             }, 500);
           }}
           validationSchema={editUserValidationSchema}
-          validateOnChange={true}
+          validateOnChange={false}
+          validateOnBlur={true}
         >
           {({ isSubmitting, errors, touched }) => (
             <StyledForm>
@@ -46,7 +46,6 @@ export default function EditUserDialog(props: OwnProps) {
               </Typography>
               <Field
                 as={TextField}
-                autoFocus
                 margin="dense"
                 name="email"
                 id="email"
@@ -58,7 +57,6 @@ export default function EditUserDialog(props: OwnProps) {
               />
               <Field
                 as={TextField}
-                autoFocus
                 margin="dense"
                 name="name"
                 id="name"
@@ -70,7 +68,6 @@ export default function EditUserDialog(props: OwnProps) {
               />
               <Field
                 as={TextField}
-                autoFocus
                 margin="dense"
                 name="username"
                 id="username"
@@ -82,7 +79,7 @@ export default function EditUserDialog(props: OwnProps) {
               />
               <DialogActions>
                 <Button type="submit" disabled={isSubmitting || Object.keys(errors).length > 0}>
-                  Save
+                  {dialogType === DialogType.Add ? "Add" : "Save"}
                 </Button>
                 <Button onClick={handleCancel}>Cancel</Button>
               </DialogActions>
@@ -91,7 +88,7 @@ export default function EditUserDialog(props: OwnProps) {
         </Formik>
       </Dialog>
     </div>
-  );
+  ) : null;
 }
 
 const dialogHeaderMapping = {

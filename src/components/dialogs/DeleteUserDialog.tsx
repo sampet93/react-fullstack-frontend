@@ -4,8 +4,6 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
 import WarningIcon from "@mui/icons-material/Warning";
 import { User } from "../../hooks/useUsers";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import Box from "@mui/material/Box/Box";
+import Box from "@mui/material/Box";
 import TableContainer from "@mui/material/TableContainer/TableContainer";
 import Table from "@mui/material/Table/Table";
 import TableBody from "@mui/material/TableBody/TableBody";
@@ -14,26 +14,17 @@ import { useUsers } from "../../hooks/useUsers";
 import { User } from "../../hooks/useUsers";
 import AddEditUserDialog, { DialogType } from "../dialogs/AddEditUserDialog";
 import DeleteUserDialog from "../dialogs/DeleteUserDialog";
+import Fab from "@mui/material/Fab";
 
 export default function Home() {
   const { users, loading } = useUsers();
   const [selectedUser, setSelectedUser] = React.useState<User | undefined>();
-  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
-  const [addDialogOpen, setAddDialogOpen] = React.useState(false);
+  const [dialog, setDialog] = React.useState<DialogType>();
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
-  const handleOpenDialog = (user: User, dialogType: DialogType) => {
+  const handleOpenDialog = (dialogType: DialogType, user?: User) => {
     setSelectedUser(user);
-    switch (dialogType) {
-      case DialogType.Add:
-        setAddDialogOpen(true);
-        break;
-      case DialogType.Edit:
-        setEditDialogOpen(true);
-        break;
-      default:
-        break;
-    }
+    setDialog(dialogType);
   };
 
   const handleOpenDeleteDialog = (user: User) => {
@@ -42,13 +33,12 @@ export default function Home() {
   };
 
   const handleSubmit = () => {
-    setEditDialogOpen(false);
+    setDialog(undefined);
     setSelectedUser(undefined);
   };
 
   const handleCancel = () => {
-    setEditDialogOpen(false);
-    setAddDialogOpen(false);
+    setDialog(undefined);
     setDeleteDialogOpen(false);
     setSelectedUser(undefined);
   };
@@ -63,15 +53,8 @@ export default function Home() {
         />
       )}
       <AddEditUserDialog
-        dialogType={DialogType.Edit}
-        isOpen={editDialogOpen}
-        handleSubmit={handleSubmit}
-        handleCancel={handleCancel}
-        user={selectedUser!}
-      />
-      <AddEditUserDialog
-        dialogType={DialogType.Add}
-        isOpen={addDialogOpen}
+        dialogType={dialog}
+        isOpen={!!dialog}
         handleSubmit={handleSubmit}
         handleCancel={handleCancel}
         user={selectedUser!}
@@ -82,13 +65,23 @@ export default function Home() {
         handleCancel={handleCancel}
         user={selectedUser}
       />
+      <Fab
+        variant="extended"
+        color="primary"
+        aria-label="add"
+        sx={{ position: "absolute", bottom: "8px", right: "8px" }}
+        onClick={() => handleOpenDialog(DialogType.Add)}
+      >
+        <EditIcon />
+        Add User
+      </Fab>
     </Box>
   );
 }
 
 const UsersTable: React.FC<{
   users: User[];
-  handleOpenDialog: (user: User, dialogType: DialogType) => void;
+  handleOpenDialog: (dialogType: DialogType, user?: User) => void;
   handleOpenDeleteDialog: (user: User) => void;
 }> = (props) => {
   const { users, handleOpenDialog, handleOpenDeleteDialog } = props;
@@ -114,7 +107,7 @@ const UsersTable: React.FC<{
               <TableCell>{user.email}</TableCell>
               <TableCell align="center">
                 <IconButton
-                  onClick={() => handleOpenDialog(user, DialogType.Edit)}
+                  onClick={() => handleOpenDialog(DialogType.Edit, user)}
                   aria-label="Edit"
                 >
                   <EditIcon color="primary" />
